@@ -7,6 +7,7 @@ import { ApolloClient } from 'apollo-client'
 import { createHttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import { setContext } from 'apollo-link-context'
+import { UserProvider } from './context/user-context.js';
 
 const httpLink = createHttpLink({
   uri: 'https://graphql.anilist.co'
@@ -45,10 +46,12 @@ export default class App extends React.Component {
     } else {
       return (
         <ApolloProvider client={client}>
-          <View style={styles.container}>
-            {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-            <AppNavigator />
-          </View>
+            <View style={styles.container}>
+              <UserProvider>
+                {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
+                <AppNavigator />
+              </UserProvider>
+            </View>
         </ApolloProvider>
       );
     }
@@ -59,6 +62,7 @@ export default class App extends React.Component {
       Asset.loadAsync([
         require('./assets/images/robot-dev.png'),
         require('./assets/images/robot-prod.png'),
+        require('./assets/images/sao.png')
       ]),
       Font.loadAsync({
         // This is the font that we are using for our tab bar
