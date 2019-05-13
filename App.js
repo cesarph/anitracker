@@ -1,5 +1,5 @@
 import React from 'react';
-import { Platform, StatusBar, StyleSheet, View, AsyncStorage } from 'react-native';
+import { Platform, StatusBar, StyleSheet, SafeAreaView, AsyncStorage } from 'react-native';
 import { AppLoading, Asset, Font, Icon } from 'expo';
 import AppNavigator from './navigation/AppNavigator';
 import { ApolloProvider } from 'react-apollo'
@@ -46,12 +46,12 @@ export default class App extends React.Component {
     } else {
       return (
         <ApolloProvider client={client}>
-            <View style={styles.container}>
+            <SafeAreaView style={styles.container}>
               <UserProvider>
                 {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
                 <AppNavigator />
               </UserProvider>
-            </View>
+            </SafeAreaView>
         </ApolloProvider>
       );
     }

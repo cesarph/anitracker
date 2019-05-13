@@ -1,94 +1,103 @@
 import React from 'react';
 import {
   Image,
+  AsyncStorage,
   Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  FlatList
 } from 'react-native';
 import { Query } from 'react-apollo'
 import gql from 'graphql-tag'
+import UserContext, {withUserContext} from '../context/user-context';
+
+import { colors } from '../constants/Colors';
 
 
 import { MonoText } from '../components/StyledText';
+import AnimeEntry from '../components/AnimeEntry';
+
+import { RectButton } from 'react-native-gesture-handler';
+import Swipe from '../components/Swipe';
 
 import { logout } from '../util'
 
-export default class HomeScreen extends React.Component {
+class HomeScreen extends React.PureComponent {
   static navigationOptions = {
     header: null,
   };
+  static contextType = UserContext;
 
   state = {
-    result: {}
+    result: {},
   }
+
 
   _logout = async () => {
     await logout();
     this.props.navigation.navigate('Auth');
   }
 
+  renderSeparator = () => {
+    return (
+      <View
+        style={styles.separator}
+      />
+    );
+  };
+
   render() {
+    const user = this.props.userProvider.user
+    const status = this.props.status.toUpperCase();
+    console.log(status)
     return (
       <View style={styles.container}>
-        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-          <View style={styles.welcomeContainer}>
-            <Image
-              source={
-                __DEV__
-                  ? require('../assets/images/robot-dev.png')
-                  : require('../assets/images/robot-prod.png')
-              }
-              style={styles.welcomeImage}
-            />
-            <Query query={USER_QUERY}>
-              {({ loading, error, data }) => {
-                  if (loading) return <Text>Fetching</Text>
-                  if (error) return <Text>Error</Text>
-                  
-                  return (
-                    <Text>
-                    userID: {data.Viewer.name}
-                    </Text>
-                  )
+           { user.id &&
+            <Query 
+                query={USER_LISTS_QUERY}
+                variables={{ 
+                  "userId": user.id,
+                  "type": "ANIME",
+                  "status": status,
+                  "perPage": 40
                 }}
-            </Query>
+              >
+                {({ loading, error, data }) => {
+                    if (loading) return <Text>Fetching</Text>
+                    if (error) {
+                      console.log(error)
+                      return <Text>Error: {error.message} </Text>
+                    }
+                    
+
+                    {/* const order = data.MediaListCollection.user.mediaListOptions.animeList.sectionOrder; */}
+                    {/* const watchingList = data.MediaListCollection.lists.filter(list => list.name === "Watching")[0]; */}
+                    const list = data.Page.mediaList;
+                    {/* const orderedLists = order.map(order => lists.filter(list => list.name === order)[0]).filter(list => list) */}
+                    
+                    {/* const filterList = watchingList.entries; */}
+                    {/* console.log({filterList, orderedLists}) */}
+                    {/* console.log({order, orderedLists}) */}
+                    return (
+                      <FlatList
+                        renderItem={({item, index}) => <AnimeEntry {...item} />}
+                        data={list}
+                        initialNumToRender={10}
+                        ItemSeparatorComponent={this.renderSeparator}
+                        keyExtractor={(item,index) => `${item.id}`}
+                      />
+                    )
+               
+                      
+                }}
+              </Query> 
+            }
             <TouchableOpacity onPress={this._logout}>
               <Text>Logout</Text>
             </TouchableOpacity>
-          </View>
-
-          <View style={styles.getStartedContainer}>
-
-            <Text style={styles.getStartedText}>Get started by opening</Text>
-
-            <View style={[styles.codeHighlightContainer, styles.homeScreenFilename]}>
-              <MonoText style={styles.codeHighlightText}>screens/HomeScreen.js</MonoText>
-            </View>
-
-            <Text style={styles.getStartedText}>
-              Change this text and your app will automatically reload.
-
-              h:{this.state.result.access_token}
-            </Text>
-          </View>
-
-          <View style={styles.helpContainer}>
-            <TouchableOpacity onPress={this._handleHelpPress} style={styles.helpLink}>
-              <Text style={styles.helpLinkText}>Help, it didn’t automatically reload!</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-
-        <View style={styles.tabBarInfoContainer}>
-          <Text style={styles.tabBarInfoText}>This is a tab bar. You can edit it in:</Text>
-
-          <View style={[styles.codeHighlightContainer, styles.navigationFilename]}>
-            <MonoText style={styles.codeHighlightText}>navigation/MainTabNavigator.js</MonoText>
-          </View>
-        </View>
       </View>
     );
   }
@@ -96,100 +105,105 @@ export default class HomeScreen extends React.Component {
     
 }
 
-const USER_QUERY = gql`
-  query {
-    Viewer {
-      id
-      name
-    }
-  }
-`
+
+export default withUserContext(HomeScreen);
+
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-  },
-  developmentModeText: {
-    marginBottom: 20,
-    color: 'rgba(0,0,0,0.4)',
-    fontSize: 14,
-    lineHeight: 19,
-    textAlign: 'center',
-  },
-  contentContainer: {
-    paddingTop: 30,
-  },
-  welcomeContainer: {
+    backgroundColor: colors.primary,
     alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 20,
+    justifyContent: 'center',
+    paddingVertical: 5,
   },
-  welcomeImage: {
-    width: 100,
+  rectButton: {
+    flex: 1,
     height: 80,
-    resizeMode: 'contain',
-    marginTop: 3,
-    marginLeft: -10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    justifyContent: 'space-between',
+    flexDirection: 'column',
+    backgroundColor: 'white',
   },
-  getStartedContainer: {
-    alignItems: 'center',
-    marginHorizontal: 50,
-  },
-  homeScreenFilename: {
-    marginVertical: 7,
-  },
-  codeHighlightText: {
-    color: 'rgba(96,100,109, 0.8)',
-  },
-  codeHighlightContainer: {
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    borderRadius: 3,
-    paddingHorizontal: 4,
-  },
-  getStartedText: {
-    fontSize: 17,
-    color: 'rgba(96,100,109, 1)',
-    lineHeight: 24,
-    textAlign: 'center',
-  },
-  tabBarInfoContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    ...Platform.select({
-      ios: {
-        shadowColor: 'black',
-        shadowOffset: { height: -3 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-      },
-      android: {
-        elevation: 20,
-      },
-    }),
-    alignItems: 'center',
-    backgroundColor: '#fbfbfb',
-    paddingVertical: 20,
-  },
-  tabBarInfoText: {
-    fontSize: 17,
-    color: 'rgba(96,100,109, 1)',
-    textAlign: 'center',
-  },
-  navigationFilename: {
-    marginTop: 5,
-  },
-  helpContainer: {
-    marginTop: 15,
-    alignItems: 'center',
-  },
-  helpLink: {
-    paddingVertical: 15,
-  },
-  helpLinkText: {
-    fontSize: 14,
-    color: '#2e78b7',
+  separator: {
+    height: 15,
   },
 });
+
+const USER_LISTS_QUERY = gql`
+  query (
+    $userId: Int, 
+    $userName: String, 
+    $type: MediaType, 
+    $status: MediaListStatus,
+    $page: Int,
+    $perPage: Int
+  ) {    
+    Page(page: $page, perPage: $perPage) {
+      pageInfo {
+        total
+        perPage
+        currentPage
+        lastPage
+        hasNextPage
+      }
+      mediaList(userId: $userId, userName: $userName, status: $status, type: $type) {   
+        ...mediaListEntry                
+      }
+    }
+  } 
+
+
+fragment mediaListEntry on MediaList {   
+  id   
+  mediaId   
+  status   
+  score   
+  progress   
+  progressVolumes  
+  repeat   
+  priority   
+  private   
+  hiddenFromStatusLists   
+  advancedScores     
+  updatedAt   
+  startedAt {       
+    year       
+    month       
+    day   
+  }   
+  completedAt {       
+    year       
+    month      
+    day   
+  }   
+  media {       
+    id      
+    title {           
+      userPreferred
+      romaji
+      english
+      native
+    }      
+    studios(isMain: true) {
+      nodes {
+        name
+      }
+    } 
+    coverImage {
+			extraLarge
+      color
+  	}
+    bannerImage
+    type       
+    format       
+    status       
+    episodes       
+    volumes       
+    chapters      
+  }
+}
+
+`
