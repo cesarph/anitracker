@@ -1,18 +1,89 @@
 import React from 'react';
 import { Platform } from 'react-native';
-import { createStackNavigator, createBottomTabNavigator } from 'react-navigation';
+import { createStackNavigator, createBottomTabNavigator, createMaterialTopTabNavigator } from 'react-navigation';
 
 import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/HomeScreen';
 import LinksScreen from '../screens/LinksScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
-const HomeStack = createStackNavigator({
-  Home: HomeScreen,
+import { colors } from '../constants/Colors'
+
+const ListStack = createMaterialTopTabNavigator({
+  Watching: {
+    screen: () => <HomeScreen status="current" />,
+    // path: 'list/:type',
+    navigationOptions: {
+      tabBarLabel: 'Watching',
+      tabBarIcon: <TabBarIcon name={'md-eye'} />
+    }
+  },
+  Paused: {
+    screen: () => <HomeScreen status="paused" />,
+    navigationOptions: {
+      tabBarLabel: 'Paused',
+      tabBarIcon: <TabBarIcon name={'md-pause'} />
+    }
+  },
+  Dropped: {
+    screen: () => <HomeScreen status="dropped" />,
+    navigationOptions: {
+      tabBarLabel: 'Dropped',
+      tabBarIcon: <TabBarIcon name={'md-remove-circle'} />
+    }
+  },
+  Completed: {
+    screen: () => <HomeScreen status="completed" />,
+    navigationOptions: {
+      tabBarLabel: 'Completed',
+      tabBarIcon: <TabBarIcon name={'md-checkmark-circle'} />
+    }
+  },
+  Planning: {
+    screen: () => <HomeScreen status="planning" />,
+    navigationOptions: {
+      tabBarLabel: 'Planning',
+      tabBarIcon: <TabBarIcon name={'md-calendar'} />
+    }
+  },
+}, {
+  swipeEnabled: true,
+  animationEnabled: true,
+  lazy: true,
+  initialLayout: {
+    height: 100,
+    width: 600,
+  },
+  order: ["Watching", "Completed", "Planning", "Paused", "Dropped"],
+  tabBarOptions: {
+    showIcon: true,
+    showLabel: true,
+    labelStyle: {
+      fontSize: 12,
+      marginBottom: -3
+    },
+    upperCaseLabel: false,
+    tabStyle: {
+       marginTop: 15,
+       width: 120,
+       height: 80
+    },
+    style: {
+      backgroundColor: colors.blackBlue,
+    },
+    iconStyle: {
+      color: colors.white,
+      marginBottom: -3,
+    },
+    indicatorStyle: {
+      backgroundColor: 'red'
+    },
+    scrollEnabled: true
+  }
 });
 
-HomeStack.navigationOptions = {
-  tabBarLabel: 'Home',
+ListStack.navigationOptions = {
+  tabBarLabel: 'Anime',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
@@ -25,36 +96,49 @@ HomeStack.navigationOptions = {
   ),
 };
 
-const LinksStack = createStackNavigator({
-  Links: LinksScreen,
+const DiscoverStack = createStackNavigator({
+  Discover: LinksScreen,
 });
 
-LinksStack.navigationOptions = {
-  tabBarLabel: 'Links',
+DiscoverStack.navigationOptions = {
+  tabBarLabel: 'Discover',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
-      name={Platform.OS === 'ios' ? 'ios-link' : 'md-link'}
+      name={Platform.OS === 'ios' ? 'ios-search' : 'md-search'}
     />
   ),
 };
 
-const SettingsStack = createStackNavigator({
-  Settings: SettingsScreen,
+const ProfileStack = createStackNavigator({
+  Profile: SettingsScreen,
 });
 
-SettingsStack.navigationOptions = {
-  tabBarLabel: 'Settings',
+ProfileStack.navigationOptions = {
+  tabBarLabel: 'Profile',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
-      name={Platform.OS === 'ios' ? 'ios-options' : 'md-options'}
+      name={Platform.OS === 'ios' ? 'ios-person' : 'md-person'}
     />
   ),
 };
 
 export default createBottomTabNavigator({
-  HomeStack,
-  LinksStack,
-  SettingsStack,
+  ListStack,
+  DiscoverStack,
+  ProfileStack,
+},
+{
+  tabBarOptions: {
+    style: {
+      backgroundColor: colors.blackBlue
+    },
+    activeTintColor: colors.white,
+    // activeBackgroundColor: colors.secondary,
+    tabStyle: {
+      // borderTopWidth: 2,
+      // borderTopColor: colors.secondary
+    }
+  },
 });

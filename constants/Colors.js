@@ -1,10 +1,19 @@
-const tintColor = '#2f95dc';
+export const colors = {
+  primary: '#2A2B2A',// #17293d
+  secondary: '#E3170A',
+  blue:'#1481BA',
+  blackBlue: '#161616',// '#0F1924',
+  white: '#FFFFFF',
+  success: '#66DE31',
+}
+
+const tintColor = colors.white;
 
 export default {
   tintColor,
   tabIconDefault: '#ccc',
   tabIconSelected: tintColor,
-  tabBar: '#fefefe',
+  tabBar: colors.blackBlue,
   errorBackground: 'red',
   errorText: '#fff',
   warningBackground: '#EAEB5E',
@@ -12,16 +21,6 @@ export default {
   noticeBackground: tintColor,
   noticeText: '#fff',
 };
-
-
-export const colors = {
-  primary: '#2A2B2A',
-  secondary: '#E3170A',
-  blue:'#1481BA',
-  blackBlue: '#0F1924',
-  white: '#FFFFFF',
-  success: '#66DE31',
-}
 /* Color Palette 
 
 */

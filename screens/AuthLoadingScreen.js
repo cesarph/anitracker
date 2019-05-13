@@ -27,7 +27,7 @@ class AuthLoadingScreen extends React.Component {
     const userId =  await AsyncStorage.getItem('userId');
     const credentials = JSON.parse(credentialsRaw);
     if (credentials) {
-      await getAccessToken(credentials.refresh_token, true);
+      // await getAccessToken(credentials.refresh_token, true);
     }
     if (userId) {
       this.props.userProvider.setUser({ id: userId })
