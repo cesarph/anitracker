@@ -20,7 +20,8 @@
     "react-apollo": "^2.5.5",
     "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
     "react-native-swipeable": "^0.6.0",
-    "react-navigation": "^3.0.9"
+    "react-navigation": "^3.0.9",
+    "react-navigation-collapsible": "^3.0.3"
   },
   "devDependencies": {
     "babel-preset-expo": "^5.0.0",

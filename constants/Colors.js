@@ -5,6 +5,7 @@ export const colors = {
   blackBlue: '#161616',// '#0F1924',
   white: '#FFFFFF',
   success: '#66DE31',
+  grey:'#cecece',
 }
 
 const tintColor = colors.white;

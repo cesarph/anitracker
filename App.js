@@ -8,6 +8,7 @@ import { createHttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import { setContext } from 'apollo-link-context'
 import { UserProvider } from './context/user-context.js';
+import { colors } from './constants/Colors';
 
 const httpLink = createHttpLink({
   uri: 'https://graphql.anilist.co'
@@ -16,10 +17,13 @@ const httpLink = createHttpLink({
 const authLink = setContext(async (_, { headers }) => {
   const credentialsRaw = await AsyncStorage.getItem('credentials');
   const credentials = JSON.parse(credentialsRaw);
+
   return {
     headers: {
       ...headers,
-      authorization: credentials ? `Bearer ${credentials.access_token}` : ''
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': credentials ? `Bearer ${credentials.access_token}` : ''
     }
   }
 })
@@ -48,7 +52,8 @@ export default class App extends React.Component {
         <ApolloProvider client={client}>
             <SafeAreaView style={styles.container}>
               <UserProvider>
-                {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
+                {/* {Platform.OS === 'ios' && <StatusBar barStyle="default" />} */}
+                <StatusBar barStyle="default" color={colors.secondary} />
                 <AppNavigator />
               </UserProvider>
             </SafeAreaView>
