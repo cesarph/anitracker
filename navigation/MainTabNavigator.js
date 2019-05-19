@@ -1,13 +1,16 @@
 import React from 'react';
-import { Platform } from 'react-native';
+import { Platform, StatusBar } from 'react-native';
 import { createStackNavigator, createBottomTabNavigator, createMaterialTopTabNavigator } from 'react-navigation';
 
 import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/HomeScreen';
-import LinksScreen from '../screens/LinksScreen';
+import DiscoverScreen from '../screens/DiscoverScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import SearchScreen from '../screens/SearchScreen';
+import MediaDetailsScreen from '../screens/MediaDetailsScreen';
 
 import { colors } from '../constants/Colors'
+import MediaHeader  from '../components/MediaHeader'
 
 const ListStack = createMaterialTopTabNavigator({
   Watching: {
@@ -64,7 +67,7 @@ const ListStack = createMaterialTopTabNavigator({
     },
     upperCaseLabel: false,
     tabStyle: {
-       marginTop: 15,
+      //  marginTop: StatusBar.currentHeight,
        width: 120,
        height: 80
     },
@@ -96,9 +99,37 @@ ListStack.navigationOptions = {
   ),
 };
 
-const DiscoverStack = createStackNavigator({
-  Discover: LinksScreen,
+const MediaTabs = createMaterialTopTabNavigator({
+  Overview: MediaDetailsScreen,
+  Episodes: MediaDetailsScreen
+}, {
+  swipeEnabled: true,
+  animationEnabled: true,
+  
+  navigationOptions: ({ navigation }) => {
+    // header: null,
+    return { 
+      // title: navigation.getParam('title')
+      header: <MediaHeader navigation={navigation} />
+    }
+  },
+  tabBarOptions: {
+    style: {
+      backgroundColor: colors.blackBlue,
+    },
+    indicatorStyle: {
+      backgroundColor: 'red'
+    },
+  }
 });
+
+const DiscoverStack = createStackNavigator({
+  Discover: DiscoverScreen,
+  Search: SearchScreen,
+  Media: MediaTabs
+});
+
+
 
 DiscoverStack.navigationOptions = {
   tabBarLabel: 'Discover',
@@ -125,8 +156,8 @@ ProfileStack.navigationOptions = {
 };
 
 export default createBottomTabNavigator({
-  ListStack,
   DiscoverStack,
+  ListStack,
   ProfileStack,
 },
 {
