@@ -95,9 +95,7 @@ class HomeScreen extends React.PureComponent {
                 }}
               </Query> 
             }
-            <TouchableOpacity onPress={this._logout}>
-              <Text>Logout</Text>
-            </TouchableOpacity>
+           
       </View>
     );
   }

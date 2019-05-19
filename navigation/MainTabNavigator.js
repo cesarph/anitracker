@@ -5,7 +5,7 @@ import { createStackNavigator, createBottomTabNavigator, createMaterialTopTabNav
 import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/HomeScreen';
 import DiscoverScreen from '../screens/DiscoverScreen';
-import SettingsScreen from '../screens/SettingsScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 import SearchScreen from '../screens/SearchScreen';
 import MediaDetailsScreen from '../screens/MediaDetailsScreen';
 
@@ -142,7 +142,7 @@ DiscoverStack.navigationOptions = {
 };
 
 const ProfileStack = createStackNavigator({
-  Profile: SettingsScreen,
+  Profile: ProfileScreen,
 });
 
 ProfileStack.navigationOptions = {
@@ -156,9 +156,9 @@ ProfileStack.navigationOptions = {
 };
 
 export default createBottomTabNavigator({
+  ProfileStack,
   DiscoverStack,
   ListStack,
-  ProfileStack,
 },
 {
   tabBarOptions: {
