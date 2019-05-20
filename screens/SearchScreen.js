@@ -5,23 +5,100 @@ import { colors } from '../constants/Colors';
 import { SEARCH_MEDIA_QUERY } from './DiscoverScreen'
 import { FlatList } from 'react-native-gesture-handler/GestureHandler';
 import { Query } from 'react-apollo'
+import { USER_LISTS_QUERY } from './CurrentListScreen'
+import { withUserContext } from '../context/user-context';
+
 
 
 import Media from '../components/Media'
 
 class SearchScreen extends React.Component {
-  static navigationOptions = ({ navigation }) => {
-    return {
-      title: `${navigation.getParam('type')}'s search`,
-      header: null
-    };
+  static navigationOptions = {
+    // title: `${navigation.getParam('type')}'s search`,
+    header: null
   };
+
 
   typingTimeout = null;
 
   state = {
     searchString: this.props.navigation.state.params.searchString
   }
+
+  _updateStoreAfterStatusChange = (store, newData, mediaId) => {
+    const {media, ...mediaListEntry} = newData.SaveMediaListEntry;
+    // console.log({media})
+    const data = store.readQuery({ query: SEARCH_MEDIA_QUERY, variables: {
+      "search": this.state.searchString,
+      "type": media.type,
+      "perPage": 4,
+    } });
+    const data2 = store.readQuery({ query: USER_LISTS_QUERY, variables: {
+      "userId": this.props.userProvider.user.id,
+      "type": media.type,
+      "status": 'CURRENT',
+      "perPage": 40
+    } });
+
+    // console.log({mediaId});
+    const mediaClicked = data.Page.media.find(media => media.id === mediaId)
+    data2.Page.mediaList = [ newData.SaveMediaListEntry, ...data2.Page.mediaList  ];
+    
+    mediaClicked.mediaListEntry = mediaListEntry;
+    // console.log({mediaClicked, type:media.type})
+
+    store.writeQuery({ query: SEARCH_MEDIA_QUERY, variables: {
+      "search": this.state.searchString,
+      "type": media.type,
+      "perPage": 4,
+    }, data })
+
+    store.writeQuery({ query: USER_LISTS_QUERY, variables: {
+      "userId": this.props.userProvider.user.id,
+      "type": media.type,
+      "status": 'CURRENT',
+      "perPage": 40
+    }, data: data2 })
+    // const animeClick = result.
+    
+  }
+
+  _updateStoreAfterDelete = (store, deleted, mediaId, type) => {
+    
+    const data = store.readQuery({ query: SEARCH_MEDIA_QUERY, variables: {
+      "search": this.state.searchString,
+      "type": type,
+      "perPage": 20,
+    } });
+    const data2 = store.readQuery({ query: USER_LISTS_QUERY, variables: {
+      "userId": this.props.userProvider.user.id,
+      "type": type,
+      "status": 'CURRENT',
+      "perPage": 40
+    } });
+
+    // console.log({d: data2.Page.mediaList.filter(media => media.id !== mediaId)})
+    const mediaClicked = data.Page.media.find(media => media.id === mediaId)
+    data2.Page.mediaList = data2.Page.mediaList.filter(mediaList => mediaList.media.id !== mediaId)
+    mediaClicked.mediaListEntry = null;
+
+
+    store.writeQuery({ query: SEARCH_MEDIA_QUERY, variables: {
+      "search": this.state.searchString,
+      "type": type,
+      "perPage": 20,
+    }, data })
+
+    store.writeQuery({ query: USER_LISTS_QUERY, variables: {
+      "userId": this.props.userProvider.user.id,
+      "type": type,
+      "status": 'CURRENT',
+      "perPage": 40
+    }, data: data2 });
+
+    
+  }
+
 
   searchMedia = (searchString) => {
     clearTimeout(this.typingTimeout);
@@ -103,7 +180,11 @@ class SearchScreen extends React.Component {
                     return (
                       
                       <FlatList
-                        renderItem={({item}) => <Media {...item} />}
+                        renderItem={({item}) => <Media 
+                              {...item}
+                              updateStoreAfterStatusChange={this._updateStoreAfterStatusChange} 
+                              updateStoreAfterDelete={this._updateStoreAfterDelete}
+                            />}
                         data={data.Page.media}
                         initialNumToRender={10}
                         ItemSeparatorComponent={this.renderSeparator}
@@ -129,7 +210,7 @@ class SearchScreen extends React.Component {
   }
 }
 
-export default SearchScreen;
+export default withUserContext(SearchScreen);
 
 const styles = StyleSheet.create({
   container: {

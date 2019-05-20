@@ -1,54 +1,35 @@
 import React from 'react';
 import { Platform, StatusBar } from 'react-native';
 import { createStackNavigator, createBottomTabNavigator, createMaterialTopTabNavigator } from 'react-navigation';
-
+import { Icon } from 'expo';
 import TabBarIcon from '../components/TabBarIcon';
-import HomeScreen from '../screens/HomeScreen';
+import CurrentListScreen from '../screens/CurrentListScreen';
 import DiscoverScreen from '../screens/DiscoverScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import SearchScreen from '../screens/SearchScreen';
 import MediaDetailsScreen from '../screens/MediaDetailsScreen';
 
-import { colors } from '../constants/Colors'
-import MediaHeader  from '../components/MediaHeader'
+import Colors, { colors } from '../constants/Colors'
 
-const ListStack = createMaterialTopTabNavigator({
+import MediaHeader  from '../components/MediaHeader'
+import AiringScreen from '../screens/AiringScreen';
+import LatestScreen from '../screens/LatestScreen';
+import CharacterScreen from '../screens/CharacterScreen';
+
+const WatchListStack = createMaterialTopTabNavigator({
   Watching: {
-    screen: () => <HomeScreen status="current" />,
-    // path: 'list/:type',
+    screen: () => <CurrentListScreen type="anime" />,
     navigationOptions: {
-      tabBarLabel: 'Watching',
-      tabBarIcon: <TabBarIcon name={'md-eye'} />
+      tabBarLabel: 'Watch List',
+     
     }
   },
-  Paused: {
-    screen: () => <HomeScreen status="paused" />,
+  Airing: {
+    screen: AiringScreen,
     navigationOptions: {
-      tabBarLabel: 'Paused',
-      tabBarIcon: <TabBarIcon name={'md-pause'} />
+      tabBarLabel: 'Airing',
     }
-  },
-  Dropped: {
-    screen: () => <HomeScreen status="dropped" />,
-    navigationOptions: {
-      tabBarLabel: 'Dropped',
-      tabBarIcon: <TabBarIcon name={'md-remove-circle'} />
-    }
-  },
-  Completed: {
-    screen: () => <HomeScreen status="completed" />,
-    navigationOptions: {
-      tabBarLabel: 'Completed',
-      tabBarIcon: <TabBarIcon name={'md-checkmark-circle'} />
-    }
-  },
-  Planning: {
-    screen: () => <HomeScreen status="planning" />,
-    navigationOptions: {
-      tabBarLabel: 'Planning',
-      tabBarIcon: <TabBarIcon name={'md-calendar'} />
-    }
-  },
+  }
 }, {
   swipeEnabled: true,
   animationEnabled: true,
@@ -57,55 +38,79 @@ const ListStack = createMaterialTopTabNavigator({
     height: 100,
     width: 600,
   },
-  order: ["Watching", "Completed", "Planning", "Paused", "Dropped"],
   tabBarOptions: {
-    showIcon: true,
-    showLabel: true,
-    labelStyle: {
-      fontSize: 12,
-      marginBottom: -3
-    },
-    upperCaseLabel: false,
-    tabStyle: {
-      //  marginTop: StatusBar.currentHeight,
-       width: 120,
-       height: 80
-    },
     style: {
       backgroundColor: colors.blackBlue,
     },
-    iconStyle: {
-      color: colors.white,
-      marginBottom: -3,
-    },
     indicatorStyle: {
-      backgroundColor: 'red'
+      backgroundColor: colors.secondary
     },
-    scrollEnabled: true
   }
 });
 
-ListStack.navigationOptions = {
+WatchListStack.navigationOptions = {
   tabBarLabel: 'Anime',
-  tabBarIcon: ({ focused }) => (
-    <TabBarIcon
-      focused={focused}
-      name={
-        Platform.OS === 'ios'
-          ? `ios-information-circle${focused ? '' : '-outline'}`
-          : 'md-information-circle'
-      }
+  tabBarIcon: ({ focused }) => (  
+    <Icon.Foundation
+      color={focused ? Colors.tabIconSelected : Colors.tabIconDefault}
+      size={26}
+      style={{ marginBottom: -3 }}
+      name='list'
+    />
+  ),
+};
+
+const ReadingListStack = createMaterialTopTabNavigator({
+  Reading: {
+    screen: () => <CurrentListScreen type="manga" />,
+    navigationOptions: {
+      tabBarLabel: 'Reading List',
+     
+    }
+  },
+  Latest: {
+    screen: LatestScreen,
+    navigationOptions: {
+      tabBarLabel: 'Latest',
+    }
+  }
+}, {
+  swipeEnabled: true,
+  animationEnabled: true,
+  lazy: true,
+  initialLayout: {
+    height: 100,
+    width: 600,
+  },
+  tabBarOptions: {
+    style: {
+      backgroundColor: colors.blackBlue,
+    },
+    indicatorStyle: {
+      backgroundColor: colors.secondary
+    },
+  }
+});
+
+ReadingListStack.navigationOptions = {
+  tabBarLabel: 'Manga',
+  tabBarIcon: ({ focused }) => (  
+    <Icon.Foundation
+      color={focused ? Colors.tabIconSelected : Colors.tabIconDefault}
+      size={26}
+      style={{ marginBottom: -3 }}
+      name='list'
     />
   ),
 };
 
 const MediaTabs = createMaterialTopTabNavigator({
   Overview: MediaDetailsScreen,
-  Episodes: MediaDetailsScreen
+  Characters: CharacterScreen
 }, {
   swipeEnabled: true,
   animationEnabled: true,
-  
+  backBehavior: 'history',
   navigationOptions: ({ navigation }) => {
     // header: null,
     return { 
@@ -156,9 +161,10 @@ ProfileStack.navigationOptions = {
 };
 
 export default createBottomTabNavigator({
-  ProfileStack,
+  WatchListStack,
+  ReadingListStack,
   DiscoverStack,
-  ListStack,
+  ProfileStack,
 },
 {
   tabBarOptions: {

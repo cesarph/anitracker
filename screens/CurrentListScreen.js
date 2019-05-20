@@ -17,15 +17,10 @@ import UserContext, {withUserContext} from '../context/user-context';
 import { colors } from '../constants/Colors';
 
 
-import { MonoText } from '../components/StyledText';
-import AnimeEntry from '../components/AnimeEntry';
+import SwipeableMedia from '../components/SwipeableMedia';
 
-import { RectButton } from 'react-native-gesture-handler';
-import Swipe from '../components/Swipe';
 
-import { logout } from '../util'
-
-class HomeScreen extends React.PureComponent {
+class CurrentListScreen extends React.PureComponent {
   static navigationOptions = {
     header: null,
   };
@@ -35,10 +30,29 @@ class HomeScreen extends React.PureComponent {
     result: {},
   }
 
+  _updateStoreAfterDelete = (store, deleted, mediaId) => {
+    const userId = this.props.userProvider.user.id;
+    const type = this.props.type.toUpperCase();
+    const data = store.readQuery({ query: USER_LISTS_QUERY, variables: { 
+      "userId": userId,
+      "type": type,
+      "status": 'CURRENT',
+      "perPage": 40
+    } });
 
-  _logout = async () => {
-    await logout();
-    this.props.navigation.navigate('Auth');
+    // console.log({deleted, type})
+    const mediaList = data.Page.mediaList.filter(mediaList => mediaList.mediaId !== mediaId)
+    data.Page.mediaList = mediaList;
+
+
+    store.writeQuery({ query: USER_LISTS_QUERY, variables: { 
+      "userId": userId,
+      "type": type,
+      "status": 'CURRENT',
+      "perPage": 40
+    }, data })
+
+    
   }
 
   renderSeparator = () => {
@@ -51,8 +65,8 @@ class HomeScreen extends React.PureComponent {
 
   render() {
     const user = this.props.userProvider.user
-    const status = this.props.status.toUpperCase();
-    console.log(status)
+    const type = this.props.type.toUpperCase();
+
     return (
       <View style={styles.container}>
            { user.id &&
@@ -60,8 +74,8 @@ class HomeScreen extends React.PureComponent {
                 query={USER_LISTS_QUERY}
                 variables={{ 
                   "userId": user.id,
-                  "type": "ANIME",
-                  "status": status,
+                  "type": type,
+                  "status": 'CURRENT',
                   "perPage": 40
                 }}
               >
@@ -71,19 +85,12 @@ class HomeScreen extends React.PureComponent {
                       console.log(error)
                       return <Text>Error: {error.message} </Text>
                     }
-                    
 
-                    {/* const order = data.MediaListCollection.user.mediaListOptions.animeList.sectionOrder; */}
-                    {/* const watchingList = data.MediaListCollection.lists.filter(list => list.name === "Watching")[0]; */}
                     const list = data.Page.mediaList;
-                    {/* const orderedLists = order.map(order => lists.filter(list => list.name === order)[0]).filter(list => list) */}
-                    
-                    {/* const filterList = watchingList.entries; */}
-                    {/* console.log({filterList, orderedLists}) */}
-                    {/* console.log({order, orderedLists}) */}
+    
                     return (
                       <FlatList
-                        renderItem={({item, index}) => <AnimeEntry {...item} />}
+                        renderItem={({item, index}) => <SwipeableMedia {...item} updateStoreAfterDelete={this._updateStoreAfterDelete} />}
                         data={list}
                         initialNumToRender={10}
                         ItemSeparatorComponent={this.renderSeparator}
@@ -104,7 +111,7 @@ class HomeScreen extends React.PureComponent {
 }
 
 
-export default withUserContext(HomeScreen);
+export default withUserContext(CurrentListScreen);
 
 
 
@@ -130,7 +137,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const USER_LISTS_QUERY = gql`
+export const USER_LISTS_QUERY = gql`
   query (
     $userId: Int, 
     $userName: String, 
@@ -147,7 +154,7 @@ const USER_LISTS_QUERY = gql`
         lastPage
         hasNextPage
       }
-      mediaList(userId: $userId, userName: $userName, status: $status, type: $type) {   
+      mediaList(userId: $userId, userName: $userName, status: $status, type: $type, sort: UPDATED_TIME_DESC) {   
         ...mediaListEntry                
       }
     }
@@ -159,37 +166,12 @@ fragment mediaListEntry on MediaList {
   mediaId   
   status   
   score   
-  progress   
-  progressVolumes  
-  repeat   
-  priority   
-  private   
-  hiddenFromStatusLists   
-  advancedScores     
-  updatedAt   
-  startedAt {       
-    year       
-    month       
-    day   
-  }   
-  completedAt {       
-    year       
-    month      
-    day   
-  }   
+  progress       
   media {       
     id      
     title {           
       userPreferred
-      romaji
-      english
-      native
     }      
-    studios(isMain: true) {
-      nodes {
-        name
-      }
-    } 
     coverImage {
 			extraLarge
       color

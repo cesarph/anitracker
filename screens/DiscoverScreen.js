@@ -5,8 +5,11 @@ import { colors } from '../constants/Colors';
 import { FlatList } from 'react-native-gesture-handler/GestureHandler';
 import { Query, withApollo } from 'react-apollo'
 import gql from 'graphql-tag'
+import { withUserContext } from '../context/user-context';
 
 import Media from '../components/Media'
+
+import { USER_LISTS_QUERY } from './CurrentListScreen'
 
 class DiscoverScreen extends React.Component {
   static navigationOptions = {
@@ -52,14 +55,23 @@ class DiscoverScreen extends React.Component {
 
   _updateStoreAfterStatusChange = (store, newData, mediaId) => {
     const {media, ...mediaListEntry} = newData.SaveMediaListEntry;
+    // console.log({media})
     const data = store.readQuery({ query: SEARCH_MEDIA_QUERY, variables: {
       "search": this.state.searchString,
       "type": media.type,
       "perPage": 4,
     } });
+    const data2 = store.readQuery({ query: USER_LISTS_QUERY, variables: {
+      "userId": this.props.userProvider.user.id,
+      "type": media.type,
+      "status": 'CURRENT',
+      "perPage": 40
+    } });
 
     // console.log({mediaId});
     const mediaClicked = data.Page.media.find(media => media.id === mediaId)
+    data2.Page.mediaList = [ newData.SaveMediaListEntry, ...data2.Page.mediaList ];
+    
     mediaClicked.mediaListEntry = mediaListEntry;
     // console.log({mediaClicked, type:media.type})
 
@@ -68,6 +80,13 @@ class DiscoverScreen extends React.Component {
       "type": media.type,
       "perPage": 4,
     }, data })
+
+    store.writeQuery({ query: USER_LISTS_QUERY, variables: {
+      "userId": this.props.userProvider.user.id,
+      "type": media.type,
+      "status": 'CURRENT',
+      "perPage": 40
+    }, data: data2 })
     // const animeClick = result.
     
   }
@@ -79,9 +98,16 @@ class DiscoverScreen extends React.Component {
       "type": type,
       "perPage": 4,
     } });
+    const data2 = store.readQuery({ query: USER_LISTS_QUERY, variables: {
+      "userId": this.props.userProvider.user.id,
+      "type": type,
+      "status": 'CURRENT',
+      "perPage": 40
+    } });
 
-    // console.log({deleted, type})
+    // console.log({d: data2.Page.mediaList.filter(media => media.id !== mediaId)})
     const mediaClicked = data.Page.media.find(media => media.id === mediaId)
+    data2.Page.mediaList = data2.Page.mediaList.filter(mediaList => mediaList.media.id !== mediaId)
     mediaClicked.mediaListEntry = null;
 
 
@@ -90,6 +116,13 @@ class DiscoverScreen extends React.Component {
       "type": type,
       "perPage": 4,
     }, data })
+
+    store.writeQuery({ query: USER_LISTS_QUERY, variables: {
+      "userId": this.props.userProvider.user.id,
+      "type": type,
+      "status": 'CURRENT',
+      "perPage": 40
+    }, data: data2 });
 
     
   }
@@ -239,7 +272,7 @@ class DiscoverScreen extends React.Component {
   }
 }
 
-export default withApollo(DiscoverScreen);
+export default withApollo(withUserContext(DiscoverScreen));
 
 const styles = StyleSheet.create({
   container: {
