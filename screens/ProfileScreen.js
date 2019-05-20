@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, ScrollView, StyleSheet, ImageBackground, Image, View, TouchableOpacity } from 'react-native';
 import { withUserContext } from '../context/user-context'
 import { colors } from '../constants/Colors';
-import { Query } from 'react-apollo'
+import { Query, withApollo } from 'react-apollo'
 import gql from 'graphql-tag';
 import { Icon, LinearGradient  } from 'expo';
 import { logout } from '../util'
@@ -15,6 +15,7 @@ class ProfileScreen extends React.Component {
 
   _logout = async () => {
     await logout();
+    this.props.client.resetStore(); 
     this.props.navigation.navigate('Auth');
   }
 
@@ -76,7 +77,7 @@ class ProfileScreen extends React.Component {
   }
 }
 
-export default withUserContext(ProfileScreen);
+export default withApollo(withUserContext(ProfileScreen));
 
 const styles = StyleSheet.create({
   container: {

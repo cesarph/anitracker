@@ -35,6 +35,7 @@ class MediaDetailsScreen extends React.Component {
     // console.log({p: this.props.navigation.getParam('id')});
     // const { animatedY, onScroll } = this.props.collapsible;
     return (
+      <ScrollView contentContainerStyle={styles.container} >
        <Query 
           query={MEDIA_QUERY}  
           variables={{ 
@@ -51,7 +52,7 @@ class MediaDetailsScreen extends React.Component {
                   return <Text>Error: {error.message} </Text>
                 }
               return (
-                <ScrollView contentContainerStyle={styles.container} >
+                <>
                   <View style={styles.detailsSection}>
                     <View style={styles.coverSection}>
                       <Image source={{uri: media.coverImage.extraLarge}} style={styles.coverImage} />
@@ -79,19 +80,17 @@ class MediaDetailsScreen extends React.Component {
                       <Text>End Date:  {media.endDate.day}/{media.endDate.month}/{media.endDate.year} </Text>
                   </View>
                    */}
-                  <Text>Description</Text>
-                  {media.description.split('<br><br>').map(text=><Text key={text}>{text}</Text>)}
-                  <Text>Trailer</Text>
-                  <Text>Characters</Text>
-                  {/* <Text>Staff</Text>
-                  <Text>Studios</Text> */}
-
-                </ScrollView>
+                  <Text style={styles.header}>Description</Text>
+                  <View style={styles.description}>
+                    {media.description.split('<br><br>').map(text=><Text style={styles.text} key={text}>{text}</Text>)}
+                  </View>
+                  {/* <Text style={styles.header}>Trailer</Text> */}
+                </>
               )
             }
           }
         </Query>
-    
+      </ScrollView>
     );
   }
   
@@ -107,6 +106,16 @@ const styles = StyleSheet.create({
 
     backgroundColor: colors.primary,
   },
+  header:{ 
+    fontSize: 20,
+    marginLeft: 10,
+    color: colors.white,
+    fontWeight: 'bold',
+    width: '90%',
+    borderBottomWidth: 5,
+    marginVertical: 10,
+    borderColor: colors.secondary,
+  },
   coverImage: {
     width: 100,
     height: 150,
@@ -119,6 +128,9 @@ const styles = StyleSheet.create({
   infoSection: {
     maxWidth: '70%',
     paddingLeft: 10,
+  },
+  description: {
+    paddingHorizontal: 20,
   },
   dateSection: {
     flexDirection: 'row',

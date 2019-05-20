@@ -179,15 +179,30 @@ const styles = StyleSheet.create({
   }
 })
 
-const STATUS_MUTATION = gql`
+export const STATUS_MUTATION = gql`
   mutation ($mediaId: Int, $progress: Int, $status: MediaListStatus) {
     SaveMediaListEntry (mediaId: $mediaId, progress: $progress, status: $status) {
         id
+        mediaId
         status
         score
         progress
         media {
-          type
+          id      
+          title {           
+            userPreferred
+          }      
+          coverImage {
+            extraLarge
+            color
+          }
+          bannerImage
+          type       
+          format       
+          status       
+          episodes       
+          volumes       
+          chapters 
         }
     }
   }
