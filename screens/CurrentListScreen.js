@@ -64,7 +64,7 @@ class CurrentListScreen extends React.PureComponent {
   };
 
   render() {
-    const user = this.props.userProvider.user
+    const user = this.props.userProvider.user;
     const type = this.props.type.toUpperCase();
 
     return (

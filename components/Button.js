@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   TouchableOpacity,
   Text,
@@ -7,6 +7,8 @@ import {
 import {colors} from '../constants/Colors'
 
 export function PrimaryButton(props) {
+  const [state, setState] = useState('1');
+  
   return (
     <TouchableOpacity {...props} style={{ ...styles.button, ...styles[props.size]}}>
       <Text style={styles.text}>{props.children}</Text>
